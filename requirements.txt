@@ -1,0 +1,10 @@
+pandas
+numpy
+gymnasium[all]
+openai
+torch
+torchvision
+matplotlib
+seaborn
+pyyaml
+ipykernel
