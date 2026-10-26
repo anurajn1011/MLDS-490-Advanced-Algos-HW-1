@@ -41,4 +41,8 @@ dist/
 # config.local.yaml
 
 # Model files
+models/
 *.pt
+
+# Logs
+/logs

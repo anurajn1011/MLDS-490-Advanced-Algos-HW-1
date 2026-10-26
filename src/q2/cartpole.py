@@ -1,7 +1,7 @@
 '''
 cartpole.py
 
-Methods for solving Cartpole using Policy Gradient. Also includes a policy gradient model with a baseline. 
+Methods for solving Cartpole using Policy Gradient, no baseline.
 '''
 
 import yaml
@@ -44,12 +44,7 @@ class CartpolePolicyNoBaseline(nn.Module):
             nn.Linear(hidden_dim, output_dim)
         )
     def forward(self, x):
-        return self.net(x)
-
-class CartpolePolicyBaseline(nn.Module):
-    def __init__(self, input_dim=4, hidden_dim=128, output_dim=2):
-        super().__init__()
-        pass    
+        return self.net(x)        
 
 ### Discounted Reward Function
 def discounted_returns(rewards, discount_rate):
@@ -139,6 +134,8 @@ def plot_eval(rewards, name="cartpole_no_baseline"):
 
 ### Main
 if __name__=="__main__":
+    print(f"Config: iterations={training_iterations}, batch={BATCH}, lr={cfg('learning_rate')}, gamma={cfg('discount_factor')}, seed={cfg('seed')}")
+    
     policy = CartpolePolicyNoBaseline()
     discount_rate = cartpole_config["discount_factor"]
     learning_rate = general_config["learning_rate"]
@@ -169,9 +166,6 @@ if __name__=="__main__":
     
     # Plot Eval
     plot_eval(eval_rewards)
-
-        
-
 
 
     

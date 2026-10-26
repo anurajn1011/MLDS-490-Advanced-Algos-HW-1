@@ -15,5 +15,6 @@ question_2:
     cartpole:
         discount_factor: 0.95
     pong:
+        train_iterations: 2000
         discount_factor: 0.99
         
