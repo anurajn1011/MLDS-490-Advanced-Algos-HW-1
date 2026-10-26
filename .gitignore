@@ -40,3 +40,5 @@ dist/
 # Local configuration
 # config.local.yaml
 
+# Model files
+*.pt

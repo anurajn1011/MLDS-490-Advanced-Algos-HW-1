@@ -10,7 +10,7 @@ import seaborn as sns
 from pathlib import Path
 
 # Defining the Path to the config
-CONFIG = Path("/nfs/home/yqy4012/AdvancedAlgos/HW1/config.yaml")
+CONFIG = Path(__file__).resolve().parents[2] / "config.yaml"
 
 # Opening the Config
 with open(CONFIG, "r") as f:
