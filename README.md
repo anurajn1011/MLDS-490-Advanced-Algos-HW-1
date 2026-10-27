@@ -1,5 +1,5 @@
 # MLDS 490: Advanced Algorithms in Artifical Intelligence
-
+By Anuraj Nair
 
 ## Homework 1
 This assignment comes in two parts. 
