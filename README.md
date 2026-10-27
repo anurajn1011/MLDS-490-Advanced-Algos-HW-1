@@ -58,7 +58,7 @@ Part 2 focuses on policy gradient solutions for CartPole-v1 and Pong-v5, provide
 ## Instructions for Tabular Methods
 1. To modify the parameters of these methods, you may edit `config.yaml`.
 2. The methods for the shuttling services problem is found in `src/q1/enumeration_methods.py`. These methods are then ran, to demonstrate outputs, in the notebook `notebooks/iterative_methods.ipynb`.
-3. To run the edge cases and validation test, run from the root of the repo `python3 src/q1/edge_cases_validation.py`. This will create a `figures` folder in your root directory where the results of the evaluation test will be stored. The CLI will demonstrate the results of the individual test with a description of the test as well, with further description in the docstring of the methods found in this file. 
+3. To run the edge cases and validation test, run from the root of the repo `python3 src/q1/edge_cases_validation.py`. This will create a `figures` folder in your root directory where the results of the evaluation test will be stored. The CLI will demonstrate the results of the individual test with a description of the test as well, with further description in the docstring of the methods found in this file. For more detailed descriptions, refer to ` tabular_eval_dictionary.md `.
 
 ## Instructions for Policy Gradient Models
 1. The following instructions will be ran from the root directory.
@@ -70,7 +70,7 @@ Part 2 focuses on policy gradient solutions for CartPole-v1 and Pong-v5, provide
    4. To train the Pong model with a baseline, `python3 src/q2/pong_baseline.py`.
 4. [WARNING] Training the above models will take some time but will output the mean and std at the end of the training run. The model weights will be stored under the `models` directory in the root. 
 5. To run evaluations on the models, run the shell script: `bash scripts/runner_pg.sh`. These evaluations will stored in the logs folder in your root repository, allowing you to examine the outputs. The evaluations are given a brief explanation of what they measure. Reference the respective code for a doc string explaining the test.
-6. The evals will also output figures which can be examined underneath the `figures` directory from your root. 
+6. The evals will also output figures which can be examined underneath the `figures` directory from your root. For further information on each test, refer to `cartpole_pong_eval_dictionary.md`.
 
 ## Definitions
 To find definitions for each evaluation (edge cases and validation), refer to the respective dictionary md in each directory in `src`. These dictionaries explain what each test does and why it is done. Location of each dictionary can be pinned down in the directory tree above for further reference. These dictionaries provide documentation on each evaluation (what does each test do, how does it validate, etc.).
