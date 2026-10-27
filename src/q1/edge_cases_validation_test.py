@@ -319,7 +319,6 @@ def v3_optimality():
     plt.savefig(FIG / "v3_threshold_sweep.png", dpi=150)
     plt.close()
 
-
 def v4_monte_carlo(pol_e):
     '''
     A monte carlo simulation of the problem with the given parameters. Just to verify if a simulation matches the algorithm solution we devised. 
@@ -347,7 +346,6 @@ def v4_monte_carlo(pol_e):
         z = (m - V_e[s0]) / se
         check(f"V4 enumeration time indexed policy, start {s0}", abs(z) < 4,
               f"MC = {m:.2f} +/- {se:.2f}, V0 = {V_e[s0]:.2f}, z = {z:.2f}")
-
 
 def v5_limiting_cases():
     '''

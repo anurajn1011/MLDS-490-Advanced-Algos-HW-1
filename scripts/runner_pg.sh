@@ -5,6 +5,9 @@ set -u
 
 ### Run the validation scripts for the Policy Gradient problems.
 
+# Parent dir
+cd "$(dirname "$0")/.." || exit 1
+
 # Create a directory for logs
 mkdir -p logs
 

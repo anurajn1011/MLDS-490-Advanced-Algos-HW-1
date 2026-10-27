@@ -80,7 +80,7 @@ def discounted_returns(rewards, dones, gamma):
     return returns
 
 def compute_advantages(returns, values):
-    """Calculate Monte Carlo advantages without GAE."""
+    """Calculate Monte Carlo advantages"""
     return returns - values.detach() # Detach since values comes from the critic directly.
 
 ### Running a single episode
@@ -130,18 +130,17 @@ def train_update(env, policy, optimizer, gamma, device, batch, seed=None, value_
 
     distribution = Categorical(logits=logits)
     log_probs = distribution.log_prob(actions)
-    entropy = distribution.entropy().mean()
 
     actor_loss = -(log_probs * advantages).sum() / batch # This is the dividing by N, negative since we want to maximize
     critic_loss = 0.5 * (values - returns).pow(2).sum() / batch # The 0.5 allows for smooth gradients; MSE
 
-    loss = actor_loss + value_coef * critic_loss - entropy_coef * entropy
+    loss = actor_loss + value_coef * critic_loss
 
     optimizer.zero_grad()
     loss.backward()
     optimizer.step()
 
-    return {"episode_rewards": episode_rewards, "actor_loss": float(actor_loss.item()), "critic_loss": float(critic_loss.item()), "entropy": float(entropy.item())}
+    return {"episode_rewards": episode_rewards, "actor_loss": float(actor_loss.item()), "critic_loss": float(critic_loss.item())}
 
 def evaluate(env, policy, n_episodes=500):
     policy = policy.to(torch.device("cpu"))

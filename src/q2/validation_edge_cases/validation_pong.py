@@ -129,41 +129,6 @@ def environment_and_preprocessing():
     check("P1 a real frame is mostly empty after preprocessing", 0 < frac < 0.10, f"lit fraction = {frac:.4f}")
     check("P1 consecutive frame differences are sparse, so static content cancels", n_diff < 64, f"median changed pixels = {n_diff:.0f} of 6400")
 
-    # def hold(action):
-    #     env.reset(seed=0)
-    #     fr, raw = [], None
-    #     for t in range(60):
-    #         o = env.step(int(action))[0]
-    #         if t == 40:
-    #             raw = o.copy()
-    #         fr.append(pre(o))
-    #     return fr, raw
-
-    # fr_r, raw = hold(pg.ACTION_MAP[0])
-    # fr_l, _ = hold(pg.ACTION_MAP[1])
-    # diffs = [fr_r[i + 1] - fr_r[i] for i in range(20, 59)]
-    # check("P2 holding RIGHT produces frame differences with both signs", any((d == 1).any() and (d == -1).any() for d in diffs))
-    # row_r = np.nanmedian([paddle_row(x) for x in fr_r[30:]])
-    # row_l = np.nanmedian([paddle_row(x) for x in fr_l[30:]])
-    # check("P3 RIGHT and LEFT move the agent's paddle in opposite directions", abs(row_r - row_l) > 10, f"paddle row after holding RIGHT = {row_r:.1f}, LEFT = {row_l:.1f}")
-    # def hold(action):
-    #     env.reset(seed=0)
-    #     env.step(1) # Fire to unlock the paddles
-    #     frames = []
-    #     for _ in range(100):
-    #         obs, _, terminated, truncated, _ = env.step(int(action))
-            
-    #         # Get the preprocessed frame
-    #         pf = pre(obs)
-            
-    #         # HACK: Store the agent's true RAM Y-coordinate (RAM index 51)  in a pixel that doesn't interfere with your tracking region
-    #         pf[0, 0] = env.unwrapped.ale.getRAM()[51]
-            
-    #         frames.append(pf)
-    #         if terminated or truncated:
-    #             break
-    #     return frames
-
     def hold(action):
         env.reset(seed=0)
         frames, ys = [], []
@@ -178,52 +143,14 @@ def environment_and_preprocessing():
     
         return frames, ys
 
-    fr_r, ys_r = hold(pg.ACTION_MAP[1])  # Hold RIGHT
-    fr_l, ys_l = hold(pg.ACTION_MAP[0])  # Hold LEFT
+    fr_r, ys_r = hold(pg.ACTION_MAP[0])  # RIGHT
+    fr_l, ys_l = hold(pg.ACTION_MAP[1])  # LEFT
     
     row_r = np.median(ys_r[30:])
     row_l = np.median(ys_l[30:])
     
-    check(
-        "P3 paddle responds differently to LEFT and RIGHT",
-        row_r != row_l,
-        f"median RIGHT={row_r}, LEFT={row_l}",
-    )
-    
-    # fr_r = hold(pg.ACTION_MAP[0])
-    # fr_l = hold(pg.ACTION_MAP[1])
-
-    # # print("RIGHT frame 40:", np.argwhere(fr_r[40]))
-    # # print("LEFT frame 40:", np.argwhere(fr_l[40]))
-    # # print("RIGHT frame 80:", np.argwhere(fr_r[80]))
-    # # print("LEFT frame 80:", np.argwhere(fr_l[80]))
-    
-    # row_r = np.nanmedian([paddle_row(x) for x in fr_r[30:]])
-    # row_l = np.nanmedian([paddle_row(x) for x in fr_l[30:]])
-
-    # # print("RIGHT paddle rows:",
-    # #   [paddle_row(fr_r[i]) for i in range(30, 100, 10)])
-    # # print("LEFT paddle rows:",
-    # #       [paddle_row(fr_l[i]) for i in range(30, 100, 10)])
-    
-    # check(
-    #     "P3 RIGHT and LEFT move the agent's paddle in opposite directions",
-    #     abs(row_r - row_l) > 10,
-    #     f"paddle row after holding RIGHT = {row_r:.1f}, LEFT = {row_l:.1f}"
-    # )
-    print(f"\tnote: holding RIGHT moves the paddle {'up' if row_r < row_l else 'down'} the screen")
-
-    ### DEBUG
-    # frame = fr_r[50]
-    # ys, xs = np.nonzero(frame)
-    
-    # print("All lit pixel coordinates (y, x):")
-    # print(list(zip(ys.tolist(), xs.tolist())))
-
-    # frame = fr_l[50]
-    # ys, xs = np.nonzero(frame)
-    # print(list(zip(ys.tolist(), xs.tolist())))
-    ### DEBUG
+    check("P3 RIGHT and LEFT drive the paddle to opposite ends", abs(row_r - row_l) > 10, f"median RAM y after holding RIGHT = {row_r}, LEFT = {row_l}")
+    print(f"\tnote: the RAM y value is {'larger' if row_r > row_l else 'smaller'} after holding RIGHT than after holding LEFT")
     
     fig, ax = plt.subplots(1, 3, figsize=(11, 4))
     ax[0].imshow(fr_r[40], cmap="gray")
@@ -311,30 +238,6 @@ def model_tests(data):
             with torch.no_grad():
                 v_batch, v_one = m(S)[1], m(S[0])[1]
             check(f"{name} critic returns one value per frame", v_batch.shape == (500,) and v_one.shape == ())
-
-# def probe_test(data):
-#     section("STATES AND ACTIONS ARE ALIGNED")
-#     changed = np.abs(data["states"][data["mask"]]).sum(axis=(-2, -1))
-#     # thr = float(np.median(changed)) + 0.5
-#     # probe = ProbePolicy(thr)
-
-#     thr = float(
-#         (np.quantile(changed, 0.25) + np.quantile(changed, 0.75)) / 2
-#     )
-#     probe = ProbePolicy(thr)
-    
-#     vec = make_vec(4)
-#     states, actions, rewards, mask = pg.rollout(vec, probe, CPU, seed=1)
-#     vec.close()
-#     z = 20.0 * (np.abs(states).sum(axis=(-2, -1)) - thr)
-#     pred = (z > 0).astype(int)
-#     agree = (pred[mask] == actions[mask]).mean()
-#     frac = actions[mask].mean()
-#     shifted = mask[1:] & mask[:-1]
-#     agree_shift = (pred[:-1][shifted] == actions[1:][shifted]).mean()
-#     check("P7 the probe policy uses both actions", 0.1 < frac < 0.9, f"share of action 1 = {frac:.2f}")
-#     check("P7 every stored state reproduces the action that was taken from it", agree >= 0.999, f"agreement = {agree:.4f}")
-#     print(f"\tnote: agreement if the actions were shifted by one step = {agree_shift:.4f}")
 
 def probe_test(data):
     section("STATES AND ACTIONS ARE ALIGNED")
@@ -427,49 +330,88 @@ def smoke_training():
         check(f"P10 {name}: one update plays two games and records their rewards", len(rewards) == 2 and all(-21 <= r <= 21 for r in rewards), f"rewards = {rewards}")
         check(f"P10 {name}: one update changes the weights and keeps them finite", moved > 0 and all(torch.isfinite(a).all() for a in after), f"max weight change = {moved:.2e}")
 
+### Direction of policy gradient update
+def algorithmic_policy_direction_check(tag, model, states, actions, returns, mask, use_baseline=False):
+    """
+    Check whether reversing the policy's advantage signal reverses its policy-gradient direction on the same Pong rollout.
+    Expected: cosine similarity between the two gradients is near -1.
+
+    Inputs:
+        states:  (T, N, 80, 80)
+        actions: (T, N)
+        returns: (T, N)
+        mask:    (T, N), True for valid steps
+    """
+    device = next(model.parameters()).device
+
+    # Exclude padding from games that finished early.
+    valid = mask.bool()
+    states = states[valid].to(device)
+    actions = actions[valid].long().to(device)
+    returns = returns[valid].to(device).float()
+
+    model.eval()
+    output = model(states)
+
+    if use_baseline:
+        logits, values = output
+        values = values.reshape(-1).detach()
+        signal = returns - values
+    else:
+        logits = output[0] if isinstance(output, tuple) else output
+        signal = returns
+
+    log_probs = F.log_softmax(logits, dim=-1)
+    selected_log_probs = log_probs.gather(
+        1, actions.reshape(-1, 1)
+    ).squeeze(1)
+
+    # Compute policy gradients for the original and reversed signal.
+    params = [p for p in model.parameters() if p.requires_grad]
+
+    def flat_gradient(weights):
+        loss = -(selected_log_probs * weights).mean()
+        grads = torch.autograd.grad(
+            loss, params, allow_unused=True
+        )
+        return torch.cat([
+            (torch.zeros_like(p) if g is None else g).reshape(-1)
+            for p, g in zip(params, grads)
+        ])
+
+    grad_original = flat_gradient(signal)
+    grad_reversed = flat_gradient(-signal)
+
+    cosine = F.cosine_similarity(
+        grad_original.unsqueeze(0),
+        grad_reversed.unsqueeze(0),
+    ).item()
+
+    norm_original = grad_original.norm().item()
+    norm_reversed = grad_reversed.norm().item()
+
+    print(f"\n[{tag}] Policy-gradient direction test")
+    print(f"Valid rollout steps: {len(actions)}")
+    print(f"Original gradient norm: {norm_original:.6e}")
+    print(f"Reversed gradient norm: {norm_reversed:.6e}")
+    print(f"Gradient cosine:        {cosine:.6f}")
+
+    # If the signal is nonzero, reversing it should reverse the gradient.
+    if norm_original < 1e-12:
+        print("INCONCLUSIVE: original gradient is effectively zero.")
+    else:
+        assert cosine < -0.999, (
+            f"{tag}: reversing the advantage did not reverse "
+            f"the policy gradient (cosine={cosine:.6f})"
+        )
+        print("PASS: reversing the signal reverses the policy gradient.")
+
 # Create a dummy structural class to gather a uniform random distribution of actions
 class RandomPolicy(nn.Module):
     def forward(self, x):
         # Returns equal logits for both actions (RIGHT and LEFT) across all sub-envs
         n = x.shape[0]
         return torch.zeros((n, 2), device=x.device)
-
-# def main():
-    # environment_and_preprocessing()
-    # returns_tests()
-    
-    # # 1. Run the standard tests (P5 will pass because rollout returns natively clean arrays)
-    # data = rollout_tests()
-    # model_tests(data)
-
-    # # 2. Open the local environment for Probe Calibration
-    # vec = make_vec(4)
-    # baseline_probe = ProbePolicy(thr=0)
-    # states, actions, rewards, mask = pg.rollout(vec, baseline_probe, CPU, seed=1)
-    
-    # # Calculate the true threshold baseline values using the active states
-    # changed = np.abs(states[mask]).sum(axis=(-2, -1))
-    # calibrated_thr = float(np.median(changed)) - 1.0
-    
-    # # 3. Gather your balanced baseline matching your calibrated threshold
-    # calibrated_probe = ProbePolicy(thr=calibrated_thr)
-    # states, actions, rewards, mask = pg.rollout(vec, calibrated_probe, CPU, seed=1)
-    
-    # # 4. Pack everything into data for the subsequent tests
-    # vec.close()
-    # data = {
-    #     "states": states,
-    #     "actions": actions,
-    #     "rewards": rewards,
-    #     "mask": mask
-    # }
-    
-    # # 5. Run the tests. They will now both receive perfectly balanced data distributions!
-    # probe_test(data)
-    # gradient_tests(data)
-    # smoke_training()
-    # finish()
-
 def main():
     environment_and_preprocessing()
     returns_tests()
@@ -480,38 +422,5 @@ def main():
     smoke_training()
     finish()
 
-
-
 if __name__ == "__main__":
     main()
-
-        
-        
-        
-        
-        
-        
-        
-        
-        # def main():
-#     environment_and_preprocessing()
-#     returns_tests()
-#     data = rollout_tests()
-#     model_tests(data)
-
-#     # Regenerate your baseline dataset with a random policy or standard rollout first:
-#     baseline_probe = ProbePolicy(thr=0) # temporary thr
-#     states, actions, rewards, mask = pg.rollout(vec, baseline_probe, CPU, seed=1)
-    
-#     # Re-pack your data dictionary so probe_test uses the clean states
-#     data = {"states": states, "mask": mask}
-
-    
-#     probe_test(data)
-#     gradient_tests(data)
-#     smoke_training()
-#     finish()
-
-
-# if __name__ == "__main__":
-#     main()
