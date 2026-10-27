@@ -32,6 +32,7 @@ Part 2 focuses on policy gradient solutions for CartPole-v1 and Pong-v5, provide
     │   │   └── v7_convergence.png
     │   ├── init.py
     │   ├── notes_q1.md
+    |   |-- tabular_eval_dictionary.md # Dictionary defining each validation and edge case test which occurs
     └── q2
         ├── cartpole_baseline.py
         ├── cartpole.py
@@ -42,7 +43,9 @@ Part 2 focuses on policy gradient solutions for CartPole-v1 and Pong-v5, provide
         └── validation_edge_cases
             ├── val_common.py
             ├── validation_cartpole.py
-            └── validation_pong.py
+            ├── validation_pong.py
+            └── cartpole_pong_eval_dictionary.md  # Dictionary defining terms for the evaluation of Cartpole and Pong
+            
 ```
 
 ## Set Up
@@ -69,7 +72,8 @@ Part 2 focuses on policy gradient solutions for CartPole-v1 and Pong-v5, provide
 5. To run evaluations on the models, run the shell script: `bash scripts/runner_pg.sh`. These evaluations will stored in the logs folder in your root repository, allowing you to examine the outputs. The evaluations are given a brief explanation of what they measure. Reference the respective code for a doc string explaining the test.
 6. The evals will also output figures which can be examined underneath the `figures` directory from your root. 
 
-
+## Definitions
+To find definitions for each evaluation (edge cases and validation), refer to the respective dictionary md in each directory in `src`. These dictionaries explain what each test does and why it is done. 
 
 
 
