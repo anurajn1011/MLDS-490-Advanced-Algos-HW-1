@@ -73,7 +73,7 @@ Part 2 focuses on policy gradient solutions for CartPole-v1 and Pong-v5, provide
 6. The evals will also output figures which can be examined underneath the `figures` directory from your root. 
 
 ## Definitions
-To find definitions for each evaluation (edge cases and validation), refer to the respective dictionary md in each directory in `src`. These dictionaries explain what each test does and why it is done. Location of each dictionary can be pinned down in the directory tree above for further reference. 
+To find definitions for each evaluation (edge cases and validation), refer to the respective dictionary md in each directory in `src`. These dictionaries explain what each test does and why it is done. Location of each dictionary can be pinned down in the directory tree above for further reference. These dictionaries provide documentation on each evaluation (what does each test do, how does it validate, etc.).
 
 
 
